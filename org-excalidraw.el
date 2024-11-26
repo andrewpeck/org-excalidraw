@@ -108,12 +108,19 @@ prefixes, in which case this could be set to excalidraw."
       (when (string-suffix-p ".excalidraw" filename)
         (org-excalidraw--cmd-to-svg filename)))))
 
+(defun org-excalidraw-uuid-function ()
+  "Function to call to generate a unique ID for org-excalidraw files.
+
+This defaults to org-id-uuid but could be any function, e.g. one which
+returns the name of the current file appended with a timestamp, etc"
+   (org-id-uuid))
+
 ;;;###
 ;;;autoload
 (defun org-excalidraw-create-drawing ()
   "Create an excalidraw drawing and insert an 'org-mode' link to it at Point."
   (interactive)
-  (let* ((filename (concat (org-id-uuid) ".excalidraw"))
+  (let* ((filename (concat (org-excalidraw-uuid-function) ".excalidraw"))
          (path (expand-file-name filename org-excalidraw-directory))
          (link (concat "[[" org-excalidraw-type-prefix ":" path ".svg]]")))
     (org-excalidraw--validate-excalidraw-file path)
