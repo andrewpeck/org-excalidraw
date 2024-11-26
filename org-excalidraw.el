@@ -89,12 +89,6 @@ prefixes, in which case this could be set to excalidraw."
   "Construct shell cmd for converting excalidraw file with PATH to svg."
   (call-process  "excalidraw_export" nil 0 nil path "--rename_fonts=true"))
 
-(defun org-excalidraw--open-file-from-svg (path)
-  "Open corresponding .excalidraw file for svg located at PATH."
-  (let ((excal-file-path (string-remove-suffix ".svg" path)))
-    (org-excalidraw--validate-excalidraw-file excal-file-path)
-    (org-excalidraw--cmd-open excal-file-path system-type)))
-
 (defun org-excalidraw--cmd-open (path os-type)
   "Start process to open excalidraw file with PATH for OS-TYPE."
   (call-process
@@ -102,6 +96,12 @@ prefixes, in which case this could be set to excalidraw."
        shell-command-guess-open
        (if (eq os-type 'darwin) "open" "xdg-open"))
    nil 0 nil (shell-quote-argument path)))
+
+(defun org-excalidraw--open-file-from-svg (path &optional _)
+  "Open corresponding .excalidraw file for svg located at PATH."
+  (let ((excal-file-path (string-remove-suffix ".svg" path)))
+    (org-excalidraw--validate-excalidraw-file excal-file-path)
+    (org-excalidraw--cmd-open excal-file-path system-type)))
 
 (defun org-excalidraw--handle-file-change (event)
   "Handle file update EVENT to convert files to svg."
@@ -140,6 +140,9 @@ returns the name of the current file appended with a timestamp, etc"
      "Excalidraw directory %s does not exist"
      org-excalidraw-directory))
   (file-notify-add-watch org-excalidraw-directory '(change) 'org-excalidraw--handle-file-change)
+
+  ;; register a handler for .excalidraw.svg file extensions
+  (push (cons "\\.excalidraw.svg\\'" 'org-excalidraw--open-file-from-svg) org-file-apps)
 
   ;; this is only valid when org-display-user-inline-images is defined
   ;; e.g. via the org-yt package
