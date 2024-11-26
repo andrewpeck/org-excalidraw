@@ -64,6 +64,16 @@
   :type 'string
   :group 'org-excalidraw)
 
+(defcustom org-excalidraw-type-prefix "file"
+  "Prefix to use for attached excalidraw svg files.
+
+Org mode natively understands file and attachment types and processes
+them as images. Code in the org-yt package enables user defined image
+prefixes, in which case this could be set to excalidraw."
+
+  :type 'string
+  :group 'org-excalidraw)
+
 (defcustom org-excalidraw-base (org-excalidraw--default-base)
   "JSON string representing base excalidraw template for new files."
   :type 'string
@@ -103,9 +113,9 @@
 (defun org-excalidraw-create-drawing ()
   "Create an excalidraw drawing and insert an 'org-mode' link to it at Point."
   (interactive)
-  (let* ((filename (format "%s.excalidraw" (org-id-uuid)))
+  (let* ((filename (concat (org-id-uuid) ".excalidraw"))
          (path (expand-file-name filename org-excalidraw-directory))
-         (link (format "[[excalidraw:%s.svg]]" path)))
+         (link (concat "[[" org-excalidraw-type-prefix ":" path ".svg]]")))
     (org-excalidraw--validate-excalidraw-file path)
     (insert link)
     (with-temp-file path (insert org-excalidraw-base))
@@ -121,13 +131,19 @@
      "Excalidraw directory %s does not exist"
      org-excalidraw-directory))
   (file-notify-add-watch org-excalidraw-directory '(change) 'org-excalidraw--handle-file-change)
-  (org-link-set-parameters "excalidraw"
-                           :follow 'org-excalidraw--open-file-from-svg
-                           :image-data-fun (lambda (_protocol link _desc)
-                                             (with-temp-buffer (insert-file-contents-literally link)
-                                                               (buffer-substring-no-properties
-                                                                (point-min)
-                                                                (point-max))))))
+
+  ;; this is only valid when org-display-user-inline-images is defined
+  ;; e.g. via the org-yt package
+  (when (and (fboundp org-display-user-inline-images)
+             (string= "excalidraw" org-excalidraw-type-prefix))
+    (org-link-set-parameters org-excalidraw-type-prefix
+                             :follow 'org-excalidraw--open-file-from-svg
+
+                             :image-data-fun (lambda (_protocol link _desc)
+                                               (with-temp-buffer (insert-file-contents-literally link)
+                                                                 (buffer-substring-no-properties
+                                                                  (point-min)
+                                                                  (point-max)))))))
 
 
 (provide 'org-excalidraw)
