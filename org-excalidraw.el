@@ -117,10 +117,9 @@ This defaults to org-id-uuid but could be any function, e.g. one which
 returns the name of the current file appended with a timestamp, etc"
    (org-id-uuid))
 
-;;;###
-;;;autoload
+;;;###autoload
 (defun org-excalidraw-create-drawing ()
-  "Create an excalidraw drawing and insert an 'org-mode' link to it at Point."
+  "Create an excalidraw drawing and insert an `org-mode' link to it at Point."
   (interactive)
   (let* ((filename (concat (org-excalidraw-uuid-function) ".excalidraw"))
          (path (expand-file-name filename org-excalidraw-directory))
@@ -133,7 +132,7 @@ returns the name of the current file appended with a timestamp, etc"
 
 ;;;###autoload
 (defun org-excalidraw-initialize ()
-  "Setup excalidraw.el. Call this after 'org-mode initialization."
+  "Setup excalidraw.el. Call this after `org-mode' initialization."
   (interactive)
   (unless (file-directory-p org-excalidraw-directory)
     (error
