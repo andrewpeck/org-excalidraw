@@ -106,7 +106,9 @@ prefixes, in which case this could be set to excalidraw."
 (defun org-excalidraw--handle-file-change (event)
   "Handle file update EVENT to convert files to svg."
   (when (string-equal (cadr event)  "renamed")
-    (let ((filename (cadddr event)))
+    (let ((filename (if (eq (cadr event) 'changed)
+                        (caddr event)
+                      (cadddr event))))
       (when (string-suffix-p ".excalidraw" filename)
         (org-excalidraw--cmd-to-svg filename)))))
 
