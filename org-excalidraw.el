@@ -98,7 +98,9 @@ prefixes, in which case this could be set to excalidraw."
 (defun org-excalidraw--cmd-open (path os-type)
   "Start process to open excalidraw file with PATH for OS-TYPE."
   (call-process
-   (if (eq os-type 'darwin) "open" "xdg-open")
+   (if (boundp 'shell-command-guess-open)
+       shell-command-guess-open
+       (if (eq os-type 'darwin) "open" "xdg-open"))
    nil 0 nil (shell-quote-argument path)))
 
 (defun org-excalidraw--handle-file-change (event)
