@@ -75,28 +75,28 @@
     (error
      "Excalidraw file must have .excalidraw extension")))
 
-(defun org-excalidraw--shell-cmd-to-svg (path)
+(defun org-excalidraw--cmd-to-svg (path)
   "Construct shell cmd for converting excalidraw file with PATH to svg."
-  (concat "excalidraw_export --rename_fonts=true " (format "\"%s\"" path)))
-
-(defun org-excalidraw--shell-cmd-open (path os-type)
-  "Construct shell cmd to open excalidraw file with PATH for OS-TYPE."
-  (if (eq os-type 'darwin)
-      (concat "open " (shell-quote-argument path))
-    (concat "xdg-open " (shell-quote-argument path))))
+  (call-process  "excalidraw_export" nil 0 nil path "--rename_fonts=true"))
 
 (defun org-excalidraw--open-file-from-svg (path)
   "Open corresponding .excalidraw file for svg located at PATH."
   (let ((excal-file-path (string-remove-suffix ".svg" path)))
     (org-excalidraw--validate-excalidraw-file excal-file-path)
-    (shell-command (org-excalidraw--shell-cmd-open excal-file-path system-type))))
+    (org-excalidraw--cmd-open excal-file-path system-type)))
+
+(defun org-excalidraw--cmd-open (path os-type)
+  "Start process to open excalidraw file with PATH for OS-TYPE."
+  (call-process
+   (if (eq os-type 'darwin) "open" "xdg-open")
+   nil 0 nil (shell-quote-argument path)))
 
 (defun org-excalidraw--handle-file-change (event)
   "Handle file update EVENT to convert files to svg."
   (when (string-equal (cadr event)  "renamed")
     (let ((filename (cadddr event)))
       (when (string-suffix-p ".excalidraw" filename)
-        (shell-command (org-excalidraw--shell-cmd-to-svg filename))))))
+        (org-excalidraw--cmd-to-svg filename)))))
 
 ;;;###
 ;;;autoload
@@ -109,7 +109,7 @@
     (org-excalidraw--validate-excalidraw-file path)
     (insert link)
     (with-temp-file path (insert org-excalidraw-base))
-    (shell-command (org-excalidraw--shell-cmd-open path system-type))))
+    (org-excalidraw--cmd-open path system-type)))
 
 
 ;;;###autoload
