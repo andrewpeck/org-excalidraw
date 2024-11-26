@@ -141,7 +141,7 @@ returns the name of the current file appended with a timestamp, etc"
 
   ;; this is only valid when org-display-user-inline-images is defined
   ;; e.g. via the org-yt package
-  (when (and (fboundp org-display-user-inline-images)
+  (when (and (fboundp #'org-display-user-inline-images)
              (string= "excalidraw" org-excalidraw-type-prefix))
     (org-link-set-parameters org-excalidraw-type-prefix
                              :follow 'org-excalidraw--open-file-from-svg
