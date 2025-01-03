@@ -64,7 +64,7 @@
   :type 'string
   :group 'org-excalidraw)
 
-(defcustom org-excalidraw-type-prefix "file"
+(defcustom org-excalidraw-type-prefix "excalidraw"
   "Prefix to use for attached excalidraw svg files.
 
 Org mode natively understands file and attachment types and processes
@@ -147,16 +147,17 @@ returns the name of the current file appended with a timestamp, etc"
 
   ;; this is only valid when org-display-user-inline-images is defined
   ;; e.g. via the org-yt package
-  (when (and (fboundp #'org-display-user-inline-images)
+  (when (and (fboundp #'org-link-preview)
              (string= "excalidraw" org-excalidraw-type-prefix))
     (org-link-set-parameters org-excalidraw-type-prefix
                              :follow 'org-excalidraw--open-file-from-svg
-
-                             :image-data-fun (lambda (_protocol link _desc)
-                                               (with-temp-buffer (insert-file-contents-literally link)
-                                                                 (buffer-substring-no-properties
-                                                                  (point-min)
-                                                                  (point-max)))))))
+                             :preview (lambda (_protocol link _desc)
+                                          (when (file-exists-p link)
+                                                (with-temp-buffer
+                                                  (insert-file-contents-literally link)
+                                                  (buffer-substring-no-properties
+                                                   (point-min)
+                                                   (point-max))))))))
 
 
 (provide 'org-excalidraw)
