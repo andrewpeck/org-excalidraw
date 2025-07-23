@@ -120,6 +120,18 @@ returns the name of the current file appended with a timestamp, etc"
    (org-id-uuid))
 
 ;;;###autoload
+(defun org-excalidraw-update-drawing ()
+  "Manually fefresh an excalidraw drawing at point.."
+  (interactive)
+
+  (let* ((path (org--link-at-point))
+         (path (string-replace "file:" "" path))
+         (path (string-replace ".svg" "" path)))
+    (unless path
+      (error "No valid link found to convert."))
+    (org-excalidraw--cmd-to-svg path)))
+
+;;;###autoload
 (defun org-excalidraw-create-drawing ()
   "Create an excalidraw drawing and insert an `org-mode' link to it at Point."
   (interactive)
